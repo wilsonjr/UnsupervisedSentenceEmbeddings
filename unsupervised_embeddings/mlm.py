@@ -32,7 +32,7 @@ class MaskedLanguageModeling:
     def __init__(self, model_name: str, mlm_probability: float=0.15) -> None:
 
 
-        self.output_dir = "output/{}-{}".format(self.model_name.replace("/", "_"),  
+        self.output_dir = "output/mlm_{}-{}".format(self.model_name.replace("/", "_"),  
                                            datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         
         self.model = AutoModelForMaskedLM.from_pretrained(model_name)
@@ -95,7 +95,7 @@ class MaskedLanguageModeling:
         
         self.model.save_pretrained(self.output_dir)
         self.tokenizer.save_pretrained(self.output_dir)
-        
+
         return self
 
 

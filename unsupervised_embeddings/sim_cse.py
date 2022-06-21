@@ -2,6 +2,8 @@ from sentence_transformers import models, losses
 from sentence_transformers import SentenceTransformer, InputExample
 from sentence_transformers.evaluation import EmbeddingSimilarityEvaluator
 
+from torch.utils.data import DataLoader
+
 from datetime import datetime
 
 from typing import Any, List
@@ -20,6 +22,7 @@ class SimCSE:
         self.embedding_model = models.Transformer(model_name, max_seq_length=124)
         self.pooling_model = models.Pooling(self.embedding_model.get_word_embedding_dimension())
         self.model = SentenceTransformer(modules=[self.embedding_model, self.pooling_model])
+        self.dev_evaluator = None
 
         
     def set_datasets(self, train_path: str, dev_path: str) -> Any:
@@ -41,7 +44,7 @@ class SimCSE:
                     score = float(row['score']) / 5.0
                     self.development_dataset.append(InputExample(texts=[row['sentence1'], row['sentence2']], label=score))
         
-        self.dev_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(self.development_dataset, batch_size=16, name='sts-eval')
+        
         
 
         return self
@@ -52,13 +55,21 @@ class SimCSE:
         if not self.training_dataset or len(self.training_dataset) == 0:
             raise Exception("Please, provide training and development datasets using .set_datasets()")
 
-        if not self.dev_evaluator:
-            raise Exception("Something wrong with the Dev Evaluator.") 
-            
-                   
+        train_dataloader = DataLoader(self.training_dataset, shuffle=True, batch_size=batch_size)
+        train_loss = losses.MultipleNegativeRankingLoss(self.model)
 
-        return self
 
-    def save(self) -> Any:
-        
+        warmup_steps = int(len(train_dataloader) * epochs * 0.1)
+
+        self.dev_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(self.development_dataset, batch_size=16, name='sts-eval')
+        self.dev_evaluator(self.model)
+
+        self.model.fit(
+            train_objectives=[(train_dataloader, train_loss)],
+            evaluator=self.dev_evaluator,
+            epochs=epochs,
+            warmup_steps=warmup_steps,
+            output_path=self.output_dir
+        )
+
         return self

@@ -16,7 +16,7 @@ class SimCSE:
 
     def __init__(self, model_name: str) -> None:
 
-        self.output_dir = "output/simcse_{}-{}".format(self.model_name.replace("/", "_"),  
+        self.output_dir = "output/simcse_{}-{}".format(model_name.replace("/", "_"),  
                                            datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
         self.embedding_model = models.Transformer(model_name, max_seq_length=124)

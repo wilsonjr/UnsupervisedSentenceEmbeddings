@@ -32,10 +32,10 @@ class MaskedLanguageModeling:
     def __init__(self, model_name: str, mlm_probability: float=0.15) -> None:
 
 
-        self.output_dir = "output/mlm_{}-{}".format(self.model_name.replace("/", "_"),  
+        self.output_dir = "output/mlm_{}-{}".format(model_name.replace("/", "_"),  
                                            datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         
-        self.model = AutoModelForMaskedLM.from_pretrained(model_name)
+        self.model = AutoModelForMaskedLM.from_pretrained(model_name).to('cuda')
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         self.data_collator = DataCollatorForWholeWordMask(tokenizer=self.tokenizer, mlm=True, mlm_probability=mlm_probability)
@@ -66,13 +66,17 @@ class MaskedLanguageModeling:
         if not self.training_dataset or len(self.training_dataset) == 0:
             raise Exception("Please, provide training and development datasets using .set_datasets()")
 
+        max_length = 128
 
+
+        train_dataset = TokenizedDataset(self.training_dataset, self.tokenizer, max_length)
+        dev_dataset = TokenizedDataset(self.development_dataset, self.tokenizer, max_length, cache_tokenization=False) if len(self.development_dataset) > 0 else None
         
         training_args = TrainingArguments(
             output_dir=self.output_dir,
             overwrite_output_dir=True,
             num_train_epochs=epochs,
-            evaluation_strategy="steps" if self.dev_dataset is not None else "no",
+            evaluation_strategy="steps" if self.development_dataset is not None else "no",
             per_device_train_batch_size=batch_size,
             eval_steps=info_steps,
             save_steps=info_steps,
@@ -85,9 +89,11 @@ class MaskedLanguageModeling:
             model=self.model,
             args=training_args,
             data_collator=self.data_collator,
-            training_dataset=self.training_dataset,
-            eval_dataset=self.development_dataset
+            train_dataset=train_dataset,
+            eval_dataset=dev_dataset
         )
+        
+        trainer.train()
 
         return self
 

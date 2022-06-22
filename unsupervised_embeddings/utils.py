@@ -15,7 +15,7 @@ def evaluate_embeddings(model_path: str, dataset_path: str, delimiter: str='\t')
         for row in reader:
             if row['split'] == 'test':
                 score = float(row['score'])
-                samples.append(InputExample(texts=[row['sentence1'], row['sentence1']], label=score))
+                samples.append(InputExample(texts=[row['sentence1'], row['sentence2']], label=score))
     
     model = SentenceTransformer(model_path)
     test_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(samples, batch_size=16, name='eval-output')

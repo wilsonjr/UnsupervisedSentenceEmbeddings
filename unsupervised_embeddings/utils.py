@@ -10,7 +10,7 @@ def evaluate_embeddings(model_path: str, dataset_path: str, delimiter: str='\t')
 
     samples = []
 
-    with gzip.open(dataset_path, 'r', encoding='utf8') as f_eval:
+    with open(dataset_path, 'rt', encoding='utf8') as f_eval:
         reader = csv.DictReader(f_eval, delimiter=delimiter, quoting=csv.QUOTE_NONE)
         for row in reader:
             if row['split'] == 'test':

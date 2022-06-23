@@ -14,9 +14,9 @@ import csv
 
 class SimCSE:
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, output_path: str='output') -> None:
 
-        self.output_dir = "output/simcse_{}-{}".format(model_name.replace("/", "_"),  
+        self.output_dir = "{}/simcse_{}-{}".format(output_path, model_name.replace("/", "_"),  
                                            datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
         self.embedding_model = models.Transformer(model_name, max_seq_length=124)
@@ -30,15 +30,15 @@ class SimCSE:
         self.training_dataset = []
         self.development_dataset = []
 
-        with open(train_path, 'r', encoding='utf8') as f_train:
+        with open(train_path, 'rt', encoding='utf8') as f_train:
             for line in f_train:
                 line = line.strip()
                 if len(line) >= 10:
                     self.training_dataset.append(InputExample(texts=[line, line]))
 
 
-        with gzip.open(dev_path, 'r', encoding='utf8') as f_dev:
-            reader = csv.DictReader(f_dev, delimite='\t', quoting=csv.QUOTE_NONE)
+        with open(dev_path, 'rt', encoding='utf8') as f_dev:
+            reader = csv.DictReader(f_dev, delimiter='\t', quoting=csv.QUOTE_NONE)
             for row in reader:
                 if row['split'] == 'dev':
                     score = float(row['score']) / 5.0
@@ -56,7 +56,7 @@ class SimCSE:
             raise Exception("Please, provide training and development datasets using .set_datasets()")
 
         train_dataloader = DataLoader(self.training_dataset, shuffle=True, batch_size=batch_size)
-        train_loss = losses.MultipleNegativeRankingLoss(self.model)
+        train_loss = losses.MultipleNegativesRankingLoss(self.model)
 
 
         warmup_steps = int(len(train_dataloader) * epochs * 0.1)

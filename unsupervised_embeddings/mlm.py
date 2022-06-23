@@ -29,10 +29,10 @@ class TokenizedDataset:
 
 class MaskedLanguageModeling:
 
-    def __init__(self, model_name: str, mlm_probability: float=0.15) -> None:
+    def __init__(self, model_name: str, mlm_probability: float=0.15, output_path: str='output') -> None:
 
 
-        self.output_dir = "output/mlm_{}-{}".format(model_name.replace("/", "_"),  
+        self.output_dir = "{}/mlm_{}-{}".format(output_path, model_name.replace("/", "_"),  
                                            datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         
         self.model = AutoModelForMaskedLM.from_pretrained(model_name).to('cuda')

@@ -6,6 +6,7 @@ from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import DataCollatorForWholeWordMask
 from transformers import Trainer, TrainingArguments
 
+import torch
 
 class TokenizedDataset:
     def __init__(self, sentences: List, tokenizer: Any, max_length: int, cache_tokenization: bool=False) -> None:
@@ -32,10 +33,10 @@ class MaskedLanguageModeling:
     def __init__(self, model_name: str, mlm_probability: float=0.15, output_path: str='output') -> None:
 
 
-        self.output_dir = "{}/mlm_{}-{}".format(output_path, model_name.replace("/", "_"),  
-                                           datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-        
-        self.model = AutoModelForMaskedLM.from_pretrained(model_name).to('cuda')
+        self.output_dir = "{}/model".format(output_path)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        self.model = AutoModelForMaskedLM.from_pretrained(model_name).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         self.data_collator = DataCollatorForWholeWordMask(tokenizer=self.tokenizer, mlm=True, mlm_probability=mlm_probability)

@@ -16,8 +16,7 @@ class SimCSE:
 
     def __init__(self, model_name: str, output_path: str='output') -> None:
 
-        self.output_dir = "{}/simcse_{}-{}".format(output_path, model_name.replace("/", "_"),  
-                                           datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        self.output_dir = "{}/model".format(output_path)
 
         self.embedding_model = models.Transformer(model_name, max_seq_length=124)
         self.pooling_model = models.Pooling(self.embedding_model.get_word_embedding_dimension())

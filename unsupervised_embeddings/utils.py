@@ -44,13 +44,17 @@ def evaluate_embeddings(model_path: str, dataset_path: str, delimiter: str='\t')
 
 def consecutive_training(train_path: str, mlm_dev_path: str, sim_cse_dev_path: str, model_name: str='distilbert-base-uncased', mlm_epochs: int=3, sim_cse_epochs: int=7, batch_size: int=32, info_steps: int=2000):
 
-    mlm = MaskedLanguageModeling(model_name, output_path=f'output/mlm_{mlm_epochs}')
-    mlm.set_datasets(train_path, mlm_dev_path) \
-        .train(epochs=mlm_epochs, batch_size=batch_size, info_steps=info_steps) \
-            .save()
+    if mlm_epochs > 0:
+        mlm = MaskedLanguageModeling(model_name, output_path=f'output/mlm_{mlm_epochs}')
+        mlm.set_datasets(train_path, mlm_dev_path) \
+            .train(epochs=mlm_epochs, batch_size=batch_size, info_steps=info_steps) \
+                .save()
 
     if sim_cse_epochs > 0:
-        sim_cse = SimCSE(mlm.output_dir if mlm_epochs > 0 else model_name, output_path=f'output/mlm_{mlm_epochs}_sim_cse_{sim_cse_epochs}')
+        input_simcse_model = mlm.output_dir if mlm_epochs > 0 else model_name
+        print(">> {}".format(input_simcse_model))
+
+        sim_cse = SimCSE(input_simcse_model, output_path=f'output/mlm_{mlm_epochs}_sim_cse_{sim_cse_epochs}')
         sim_cse.set_datasets(train_path, sim_cse_dev_path) \
             .train(epochs=sim_cse_epochs, batch_size=batch_size, info_steps=info_steps)
 
@@ -70,8 +74,10 @@ def perform_experiment(
     batch_size: int=32
 ):
     
-    for epochs_mlm in range(max_epochs):
-        epochs_simcse = max_epochs-epochs_mlm
+    # for epochs_mlm in range(1, max_epochs+1):
+    for epochs_mlm in range(0, max_epochs+1):
+        epochs_simcse = (max_epochs)-epochs_mlm
+        print("----Training with {} epochs for MLM and {} epochs for SimCSE".format(epochs_mlm, epochs_simcse))
 
         model_path = consecutive_training(train_path, mlm_dev_path, \
             sim_cse_dev_path, model_name, \

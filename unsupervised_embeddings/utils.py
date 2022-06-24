@@ -28,7 +28,7 @@ def evaluate_embeddings(model_path: str, dataset_path: str, delimiter: str='\t')
     
     model = SentenceTransformer(model_path)
     test_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(samples, batch_size=16, name='eval-output')
-    test_evaluator(model, output_path=model_path)
+    _ = test_evaluator(model, output_path=model_path)
 
     embeddings = model.encode(embedding_sentences)
     embeddings2d = umap.UMAP().fit_transform(embeddings)
@@ -38,7 +38,7 @@ def evaluate_embeddings(model_path: str, dataset_path: str, delimiter: str='\t')
         'UMAP 1': embeddings2d[:, 0],
         'UMAP 2': embeddings2d[:, 1]
     })
-    df.to_csv(model_path+'projection.csv', index=False)
+    df.to_csv(model_path+'/projection.csv', index=False)
 
 
 
@@ -62,7 +62,6 @@ def consecutive_training(train_path: str, mlm_dev_path: str, sim_cse_dev_path: s
     else:
         return mlm.output_dir
 
-    # utils.evaluate_embeddings(sim_cse.output_dir, 'notebooks/stsbenchmark.tsv')
 
 def perform_experiment(
     train_path: str, 
@@ -73,6 +72,8 @@ def perform_experiment(
     max_epochs: int=10,
     batch_size: int=32
 ):
+
+    paths = []
     
     # for epochs_mlm in range(1, max_epochs+1):
     for epochs_mlm in range(0, max_epochs+1):
@@ -83,6 +84,23 @@ def perform_experiment(
             sim_cse_dev_path, model_name, \
             mlm_epochs=epochs_mlm, sim_cse_epochs=epochs_simcse, batch_size=batch_size)
 
+        paths.append(model_path)
         evaluate_embeddings(model_path, test_path)
+    
+    df_projections = []
 
+    df_analysis = []
 
+    for path in paths:
+      
+        df = pd.read_csv(path+'/projection.csv')
+        df_projections.append(df)
+
+        df = pd.read_csv(path+'/similarity_evaluation_eval-output_results.csv')
+        df['Config'] = path
+        df_analysis.append(df)
+
+    df_projections = pd.concat(df_projections)
+    df_analysis = pd.concat(df_analysis)
+    df_projections.to_csv(f'output/experiment_epochs_{max_epochs}_projections.csv', index=False)
+    df_analysis.to_csv(f'output/experiment_{max_epochs}_statistics.csv', index=False)

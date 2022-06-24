@@ -94,7 +94,7 @@ class MaskedLanguageModeling:
             eval_dataset=dev_dataset
         )
         
-        trainer.train()
+        _ = trainer.train()
 
         return self
 

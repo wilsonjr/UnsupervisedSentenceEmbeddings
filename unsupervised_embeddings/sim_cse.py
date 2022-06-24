@@ -63,7 +63,7 @@ class SimCSE:
         self.dev_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(self.development_dataset, batch_size=16, name='sts-eval')
         self.dev_evaluator(self.model)
 
-        self.model.fit(
+        _ = self.model.fit(
             train_objectives=[(train_dataloader, train_loss)],
             evaluator=self.dev_evaluator,
             epochs=epochs,

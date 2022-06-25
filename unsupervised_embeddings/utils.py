@@ -4,6 +4,9 @@ import gzip
 import umap
 import pandas as pd
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sentence_transformers import SentenceTransformer, InputExample
 from sentence_transformers.evaluation import EmbeddingSimilarityEvaluator
 
@@ -104,3 +107,31 @@ def perform_experiment(
     df_analysis = pd.concat(df_analysis)
     df_projections.to_csv(f'output/experiment_epochs_{max_epochs}_projections.csv', index=False)
     df_analysis.to_csv(f'output/experiment_{max_epochs}_statistics.csv', index=False)
+
+
+
+def show_test_eval(path: str) -> None:
+
+    statistics = pd.read_csv(path)
+    statistics['Config'] = statistics['Config'].apply(lambda x: x.split('/')[1])
+
+    statistics['MLM Epochs'] = statistics['Config'].apply(lambda x: x.split('_')[1]).astype(int)
+    statistics['SimCSE Epochs'] = statistics['Config'].apply(lambda x: x.split('_')[-1]).astype(int)
+
+    ax = sns.barplot(x="MLM Epochs", y="cosine_pearson", data=statistics)
+    ax.set(yscale="log")
+
+    plt.show()
+
+
+def show_projections(path: str) -> None:
+
+    projections = pd.read_csv(path)
+    projections['Name'] = projections['Name'].apply(lambda x: x.split('/')[1])
+    projections['MLM Epochs'] = projections['Name'].apply(lambda x: x.split('_')[1]).astype(int)
+    projections['SimCSE Epochs'] = projections['Name'].apply(lambda x: x.split('_')[-1]).astype(int)
+
+    plt.figure(figsize=(18, 16))
+
+    sns.relplot(data=projections, x='UMAP 1', y='UMAP 2', col='SimCSE Epochs', kind='scatter')
+    plt.show()

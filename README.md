@@ -8,11 +8,10 @@ Unsupervised training method for Sentence Embeddings
 -----------
 Requirements
 -----------
-	
-SADIRE uses a QuadTree for selecting representative data points, we chose Pyqtree for this matter:
- `UMAP <https://github.com/lmcinnes/umap>`_
- `transformers <https://github.com/huggingface/transformers>`_
- `sentence-transformers <https://github.com/UKPLab/sentence-transformers>`_
+
+* `UMAP <https://github.com/lmcinnes/umap>`_
+* `transformers <https://github.com/huggingface/transformers>`_
+* `sentence-transformers <https://github.com/UKPLab/sentence-transformers>`_
 
 
 -----------
@@ -21,7 +20,7 @@ Instalation
 
 .. code::bash
 
-	python setup.py bdist_wheel 
+    python setup.py bdist_wheel 
     pip install dist/unsupervised_embeddings-0.0.1-py3-none-any.whl
 
 -----------

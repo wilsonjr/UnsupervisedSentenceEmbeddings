@@ -18,7 +18,7 @@ Requirements
 Instalation
 -----------
 
-.. code::bash
+.. code:: bash
 
     python setup.py bdist_wheel 
     pip install dist/unsupervised_embeddings-0.0.1-py3-none-any.whl

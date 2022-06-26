@@ -1,7 +1,7 @@
 .. -*- mode: rst -*-
 
 =====
-Unsupervised training methodd for Sentence Embeddings
+Unsupervised training method for Sentence Embeddings
 =====
 
 
@@ -20,6 +20,7 @@ Instalation
 -----------
 
 .. code::bash
+
 	python setup.py bdist_wheel 
     pip install dist/unsupervised_embeddings-0.0.1-py3-none-any.whl
 
@@ -30,8 +31,8 @@ Usage Examples
 **Unsupervised training with MLM and SimCSE**
 
 .. code:: python
-
-	from unsupervised_embeddings import utils
+    
+    from unsupervised_embeddings import utils
 
     # these will generate series of models combinations
     # for max. of 5 epochs:
@@ -55,7 +56,7 @@ Usage Examples
 
 .. code:: python
 
-	# Pearson correlation
+    # Pearson correlation
     utils.show_projections('./personal/UnsupervisedSentenceEmbeddings/experiment_output/experiment_5_statistics.csv')
 
     # Projections of test set with training models

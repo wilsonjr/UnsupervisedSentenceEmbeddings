@@ -56,7 +56,7 @@ Usage Examples
 .. code:: python
 
     # Pearson correlation
-    utils.show_projections('./personal/UnsupervisedSentenceEmbeddings/experiment_output/experiment_5_statistics.csv')
+    utils.show_test_eval('./personal/UnsupervisedSentenceEmbeddings/experiment_output/experiment_5_statistics.csv')
 
     # Projections of test set with training models
     utils.show_projections('./personal/UnsupervisedSentenceEmbeddings/experiment_output/experiment_epochs_5_projections.csv')
